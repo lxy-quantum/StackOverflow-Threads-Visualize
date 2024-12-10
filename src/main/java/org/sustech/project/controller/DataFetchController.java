@@ -15,7 +15,7 @@ public class DataFetchController {
 
     @GetMapping("/fetch-questions")
     public String fetchQuestions() {
-        dataService.fetchAndStoreQuestions();
+        dataService.fetchAndStoreQuestions(1000);
         return "Questions fetched and stored.";
     }
 

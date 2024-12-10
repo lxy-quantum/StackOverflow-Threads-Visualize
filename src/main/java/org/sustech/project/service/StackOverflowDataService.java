@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Service
 public class StackOverflowDataService {
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -31,27 +32,35 @@ public class StackOverflowDataService {
     private CommentRepository commentRepository;
 
     private static final String BASE_URL = "https://api.stackexchange.com/2.3";
+    String apiKey = "rl_kEryLkUt66aLf5kW9joBLHUfj";
+    private static final int PAGE_SIZE = 100;
 
-    public void fetchAndStoreQuestions() {
-        String url = BASE_URL + "/questions?order=desc&sort=activity&tagged=java&site=stackoverflow";
+    public void fetchAndStoreQuestions(int totalCount) {
+        int pages = (int) Math.ceil((double) totalCount / PAGE_SIZE);
+        int fetchedCount = 0;
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        List<Map<String, Object>> questions = (List<Map<String, Object>>) response.getBody().get("items");
+        for (int page = 1; page <= pages; page++) {
+            String url = String.format("%s/questions?order=desc&sort=activity&tagged=java&site=stackoverflow&key=%s&page=%d&pagesize=%d",
+                    BASE_URL, apiKey, page, PAGE_SIZE);
 
-        for (Map<String, Object> questionData : questions) {
-            Question question = new Question();
-            question.setId(((Number) questionData.get("question_id")).longValue());
-            question.setTitle((String) questionData.get("title"));
-            question.setBody((String) questionData.get("body"));
-            question.setUpvotes((Integer) questionData.get("up_vote_count"));
-            question.setDownvotes((Integer) questionData.get("down_vote_count"));
-            question.setCreationDate(LocalDateTime.ofEpochSecond(
-                    ((Number) questionData.get("creation_date")).longValue(), 0, ZoneOffset.UTC));
-            question.setViews((Integer) questionData.get("view_count"));
-            question.setUserId(((Number) questionData.get("owner")).longValue());
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            List<Map<String, Object>> questions = (List<Map<String, Object>>) response.getBody().get("items");
 
-            // save to backend database
-            questionRepository.save(question);
+            for (Map<String, Object> questionData : questions) {
+                Question question = new Question();
+                question.setId(((Number) questionData.get("question_id")).longValue());
+                question.setTitle((String) questionData.get("title"));
+                question.setBody((String) questionData.get("body"));
+                question.setUpvotes((Integer) questionData.get("up_vote_count"));
+                question.setDownvotes((Integer) questionData.get("down_vote_count"));
+                question.setCreationDate(LocalDateTime.ofEpochSecond(
+                        ((Number) questionData.get("creation_date")).longValue(), 0, ZoneOffset.UTC));
+                question.setViews((Integer) questionData.get("view_count"));
+                question.setUserId(((Number) questionData.get("owner")).longValue());
+
+                // save to backend database
+                questionRepository.save(question);
+            }
         }
     }
 
