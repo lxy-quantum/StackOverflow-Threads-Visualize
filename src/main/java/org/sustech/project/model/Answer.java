@@ -8,80 +8,126 @@ import java.time.LocalDateTime;
 @Table(name = "answers")
 public class Answer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "answer_id")
+    private Long answerId;
+
+    @Column(name = "question_id")
     private Long questionId;
+
+    @Column(name = "owner_user_id")
+    private Long ownerUserId;
+
+    @Column(columnDefinition = "TEXT")
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String body;
-    private Integer upvotes;
-    private Integer downvotes;
+
+    @Column(name = "comment_count")
+    private Integer commentCount;
+
+    @Column(name = "is_accepted")
+    private boolean isAccepted;
+
+    @Column(name = "up_vote_count")
+    private Integer upVoteCount;
+
+    @Column(name = "down_vote_count")
+    private Integer downVoteCount;
+
+    private Integer score;
+
+    @Column(name = "creation_date")
     private LocalDateTime creationDate;
-    private Long userId;
-    private Boolean isAccepted;
 
     // Getters and setters
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getAnswerId() {
+        return answerId;
     }
 
-    public void setQuestionId(Long questionId) {
-        this.questionId = questionId;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setUpvotes(Integer upvotes) {
-        this.upvotes = upvotes;
-    }
-
-    public void setDownvotes(Integer downvotes) {
-        this.downvotes = downvotes;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setAccepted(Boolean accepted) {
-        isAccepted = accepted;
-    }
-
-    public Long getId() {
-        return id;
+    public void setAnswerId(Long answerId) {
+        this.answerId = answerId;
     }
 
     public Long getQuestionId() {
         return questionId;
     }
 
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
+    }
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getBody() {
         return body;
     }
 
-    public Integer getUpvotes() {
-        return upvotes;
+    public void setBody(String body) {
+        this.body = body;
     }
 
-    public Integer getDownvotes() {
-        return downvotes;
+    public Integer getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Integer commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public boolean isAccepted() {
+        return isAccepted;
+    }
+
+    public void setAccepted(boolean accepted) {
+        isAccepted = accepted;
+    }
+
+    public Integer getUpVoteCount() {
+        return upVoteCount;
+    }
+
+    public void setUpVoteCount(Integer upVoteCount) {
+        this.upVoteCount = upVoteCount;
+    }
+
+    public Integer getDownVoteCount() {
+        return downVoteCount;
+    }
+
+    public void setDownVoteCount(Integer downVoteCount) {
+        this.downVoteCount = downVoteCount;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Boolean getAccepted() {
-        return isAccepted;
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }
 
