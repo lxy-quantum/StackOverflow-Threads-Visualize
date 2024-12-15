@@ -8,20 +8,36 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "comment_id")
+    private Long commentId;
+
+    @Column(name = "owner_user_id")
+    private Long ownerUserId;
+
+    @Column(name = "post_type")
+    private String postType;
+
+    @Column(name = "post_id")
     private Long postId;
+
+    @Column(columnDefinition = "TEXT")
     private String body;
+
+    @Column(name = "creation_date")
     private LocalDateTime creationDate;
-    private Long userId;
+
+    private Integer score;
+
+    private Boolean upvoted;
+
 
     // Getters and setters
-    public Long getId() {
-        return id;
+    public Long getCommentId() {
+        return commentId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCommentId(Long id) {
+        this.commentId = id;
     }
 
     public Long getPostId() {
@@ -30,6 +46,30 @@ public class Comment {
 
     public void setPostId(Long postId) {
         this.postId = postId;
+    }
+
+    public String getPostType() {
+        return postType;
+    }
+
+    public void setPostType(String postType) {
+        this.postType = postType;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public Boolean getUpvoted() {
+        return upvoted;
+    }
+
+    public void setUpvoted(Boolean upvoted) {
+        this.upvoted = upvoted;
     }
 
     public String getBody() {
@@ -48,12 +88,12 @@ public class Comment {
         this.creationDate = creationDate;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerUserId() {
+        return ownerUserId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerUserId(Long userId) {
+        this.ownerUserId = userId;
     }
 }
 

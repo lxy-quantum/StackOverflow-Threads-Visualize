@@ -27,7 +27,7 @@ public class Answer {
     private Integer commentCount;
 
     @Column(name = "is_accepted")
-    private boolean isAccepted;
+    private Boolean isAccepted;
 
     @Column(name = "up_vote_count")
     private Integer upVoteCount;
@@ -90,11 +90,11 @@ public class Answer {
         this.commentCount = commentCount;
     }
 
-    public boolean isAccepted() {
+    public Boolean isAccepted() {
         return isAccepted;
     }
 
-    public void setAccepted(boolean accepted) {
+    public void setIsAccepted(Boolean accepted) {
         isAccepted = accepted;
     }
 

@@ -17,6 +17,15 @@ public class User {
     @Column(name = "accepet_rate")
     private Integer acceptRate;
 
+    @Column(name = "is_employee")
+    private boolean isEmployee;
+
+    private String location;
+
+    private Integer bronze;
+    private Integer silver;
+    private Integer gold;
+
     @Column(name = "view_count")
     private Integer viewCount;
 
@@ -55,6 +64,46 @@ public class User {
 
     public void setAcceptRate(Integer acceptRate) {
         this.acceptRate = acceptRate;
+    }
+
+    public boolean isEmployee() {
+        return isEmployee;
+    }
+
+    public void setEmployee(boolean employee) {
+        isEmployee = employee;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Integer getBronze() {
+        return bronze;
+    }
+
+    public void setBronze(Integer bronze) {
+        this.bronze = bronze;
+    }
+
+    public Integer getSilver() {
+        return silver;
+    }
+
+    public void setSilver(Integer silver) {
+        this.silver = silver;
+    }
+
+    public Integer getGold() {
+        return gold;
+    }
+
+    public void setGold(Integer gold) {
+        this.gold = gold;
     }
 
     public Integer getViewCount() {

@@ -81,3 +81,4 @@ build/
 !**/src/test/**/build/
 
 
+/src/main/java/org/sustech/project/config/GetURL.java

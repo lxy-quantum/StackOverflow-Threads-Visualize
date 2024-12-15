@@ -19,7 +19,7 @@ public class DatabaseInitializerService {
         long questionCount = questionRepository.count();
         if (questionCount == 0) {
             System.out.println("Initializing database with Stack Overflow data...");
-            initialDataFetchService.fetchQuestions(1000);
+            initialDataFetchService.fetchThreads(1500);
             System.out.println("Database initialization completed.");
         } else {
             System.out.println("Database already initialized. Skipping data fetch.");
