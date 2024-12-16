@@ -5,20 +5,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.sustech.project.model.Answer;
-import org.sustech.project.model.Comment;
-import org.sustech.project.model.Question;
-import org.sustech.project.model.User;
-import org.sustech.project.repository.AnswerRepository;
-import org.sustech.project.repository.CommentRepository;
-import org.sustech.project.repository.QuestionRepository;
-import org.sustech.project.repository.UserRepository;
+import org.sustech.project.model.*;
+import org.sustech.project.repository.*;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -38,25 +29,31 @@ public class InitialDataFetchService {
 
     private CommentRepository commentRepository;
 
+    private UserGroupStatusRepository userGroupStatusRepository;
+
     private HttpHeaders headers;
     private HttpEntity<String> entity;
 
     @Autowired
     public InitialDataFetchService(QuestionRepository questionRepository, AnswerRepository answerRepository,
-                                   UserRepository userRepository, CommentRepository commentRepository) {
+                                   UserRepository userRepository, CommentRepository commentRepository,
+                                   UserGroupStatusRepository userGroupStatusRepository) {
         this.restTemplate = new RestTemplate();
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.userGroupStatusRepository = userGroupStatusRepository;
         headers = new HttpHeaders();
-        headers.set("User-Agent", "izumion/1.0 (Contact: izuEmail@example.com)");
+        headers.set("User-Agent", "Mozilla/5.0 (Contact: izumion@gmial.com)");
         entity = new HttpEntity<>(headers);
     }
 
     private static final String BASE_URL = "https://api.stackexchange.com/2.3";
-    String accessToken = "kYNWefr308yMgXcKtQU4iQ))";
-    String apiKey = "rl_kEryLkUt66aLf5kW9joBLHUfj";
+    String accessToken = "J1SQoadM4KpLpxvhIp*JOw))";
+//    String accessToken = "kYNWefr308yMgXcKtQU4iQ))";
+    String apiKey = "rl_eytJwGBMfi1vZqEFucD96wC4V";
+//    String apiKey = "rl_kEryLkUt66aLf5kW9joBLHUfj";
     private static final int PAGE_SIZE = 100;
 
     StringBuilder answerIds = new StringBuilder();
@@ -67,7 +64,7 @@ public class InitialDataFetchService {
     int totalCommentCnt = 0;
     int totalUserCnt = 0;
 
-    public void fetchThreads(int totalCount) {
+    public void fetchThreads(int totalCount) throws InterruptedException {
         int pages = (int) Math.ceil((double) totalCount / PAGE_SIZE);
         int fetchedCount = 0;
 
@@ -195,28 +192,30 @@ public class InitialDataFetchService {
 
         fetchAnswers(totalAnswerCnt);
         fetchComments(totalCommentCnt);
-        fetchUsers(totalUserCnt);
+
+        saveUsers();
+
+//        Thread.sleep(30000);
+//        fetchUsers();
 
         System.out.println("Fetched total " + fetchedCount + " threads.");
     }
 
-    private void fetchUsers(int totalCount) {
-        int pages = (int) Math.ceil((double) totalCount / PAGE_SIZE);
-        int fetchedCount = 0;
-        userIds.delete(userIds.length() - 1, userIds.length());
-        List<String> idGroups = splitIdString(userIds.toString(), 50);
+    public void fetchUsers(String idGroup) throws Exception {
+//        userIds.delete(userIds.length() - 1, userIds.length());
+//        List<String> idGroups = splitIdString(userIds.toString(), 100);
 
-        for (String userIds : idGroups) {
-            try {
-                String url = String.format("%s/users/%s?page=1&pagesize=100&order=desc&sort=reputation&site=stackoverflow&filter=!*Mg4PjfXdyMcuyW.&key=%s",
-                        BASE_URL, userIds, apiKey);
+//        for (String userIds : idGroups) {
+//            try {
+                String url = String.format("%s/users/%s?page=1&pagesize=100&order=desc&sort=reputation&site=stackoverflow&filter=!*Mg4PjfXdyMcuyW.&access_token=%s&key=%s",
+                        BASE_URL, idGroup, accessToken, apiKey);
 
                 ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
                 List<Map<String, Object>> users = (List<Map<String, Object>>) response.getBody().get("items");
 
-                if (users.isEmpty()) {
-                    break;
-                }
+//                if (users.isEmpty()) {
+//                    break;
+//                }
                 for (Map<String, Object> userData : users) {
                     User user = new User();
 
@@ -278,11 +277,12 @@ public class InitialDataFetchService {
 //                        return;
 //                    }
                 }
-//                Thread.sleep(10);
-            } catch (Exception e) {
-                System.err.println("Error fetching users: " + e.getMessage());
-            }
-        }
+
+//            } catch (Exception e) {
+//                System.err.println("Error fetching users: " + e.getMessage());
+//            }
+            Thread.sleep(5000);
+//        }
     }
 
     private void fetchComments(int totalCount) {
@@ -401,6 +401,19 @@ public class InitialDataFetchService {
             } catch (Exception e) {
                 System.err.println("Error fetching answers: " + e.getMessage());
             }
+        }
+    }
+
+    private void saveUsers() {
+        userIds.delete(userIds.length() - 1, userIds.length());
+        List<String> idGroups = splitIdString(userIds.toString(), 100);
+
+        for (String userIds : idGroups) {
+            UserGroupStatus userGroupStatus = new UserGroupStatus();
+            userGroupStatus.setGroupIds(userIds);
+            userGroupStatus.setStatus(false);
+
+            userGroupStatusRepository.save(userGroupStatus);
         }
     }
 
