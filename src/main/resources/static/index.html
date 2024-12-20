@@ -1,0 +1,34 @@
+<!-- src/main/resources/static/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <script>
+        function fetchTopics() {
+            fetch('http://localhost:8080/topics/top')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let topicList = document.getElementById('topic-list');
+                    topicList.innerHTML = '';
+                    data.forEach(topic => {
+                        let listItem = document.createElement('li');
+                        listItem.textContent = `${topic.tag}, ${topic.frequency}%`;
+                        topicList.appendChild(listItem);
+                    });
+                });
+        }
+    </script>
+</head>
+<body>
+<h1>Stack Overflow Data</h1>
+<button onclick="fetchTopics()">Get Top Java Topics</button>
+<ul id="topic-list"></ul>
+</body>
+</html>
