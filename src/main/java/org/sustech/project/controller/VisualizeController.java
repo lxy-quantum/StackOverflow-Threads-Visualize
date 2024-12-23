@@ -28,7 +28,7 @@ public class VisualizeController {
 
     @GetMapping("/topics/top")
     public List<TopicFrequencyDTO> getTopTopic() {
-        return dataAnalysisService.getTopNJavaTopics();
+        return dataAnalysisService.getTopNJavaTopics(15);
     }
 
     @GetMapping("/topics/engagement")
@@ -38,7 +38,7 @@ public class VisualizeController {
 
     @GetMapping("/mistakes")
     public List<MistakeDTO> getMistakes() {
-        return dataAnalysisService.getCommonMistakes();
+        return dataAnalysisService.getCommonMistakes(10);
     }
 
     @GetMapping("/answers/quality/time")

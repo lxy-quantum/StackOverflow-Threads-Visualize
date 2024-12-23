@@ -20,8 +20,18 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             WHERE topic not like 'java'
             GROUP BY topic
             ORDER BY frequency DESC
-            LIMIT 15;""", nativeQuery = true)
-    List<Object[]> findTopNJavaTopics();
+            LIMIT :limitValue;""", nativeQuery = true)
+    List<Object[]> findTopNJavaTopics(@Param("limitValue") int limitValue);
+
+    @Query(value = """
+            SELECT topic, CAST(round(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM questions), 2) AS DOUBLE PRECISION) AS frequency
+            FROM (
+                     SELECT UNNEST(STRING_TO_ARRAY(tags, ', ')) AS topic
+                     FROM questions
+                 ) topics
+            WHERE topic like :tag
+            GROUP BY topic;""", nativeQuery = true)
+    List<Object[]> findTopicFrequency(@Param("tag") String tag);
 
     @Query(value = """
             SELECT
@@ -99,6 +109,33 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             WHERE matched_pattern IS NOT NULL
             GROUP BY matched_pattern[1]
             ORDER BY frequency DESC
-            LIMIT 10;""", nativeQuery = true)
-    List<Object[]> findCommonMistakes();
+            LIMIT :limitValue;""", nativeQuery = true)
+    List<Object[]> findCommonMistakes(@Param("limitValue") int limitValue);
+
+    @Query(value = """
+            SELECT matched_pattern[1] AS pattern, COUNT(*) AS frequency
+            FROM (
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Error') AS matched_pattern
+                     FROM questions
+                     UNION ALL
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Error') AS matched_pattern
+                     FROM questions
+                     UNION ALL
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Error') AS matched_pattern
+                     FROM comments
+                     UNION ALL
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Exception') AS matched_pattern
+                     FROM answers
+                     UNION ALL
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Exception') AS matched_pattern
+                     FROM answers
+                     UNION ALL
+                     SELECT REGEXP_MATCH(body, '[a-zA-Z]+Exception') AS matched_pattern
+                     FROM comments
+                 ) t
+            WHERE matched_pattern IS NOT NULL 
+              AND matched_pattern[1] like :name
+            GROUP BY matched_pattern[1];""", nativeQuery = true)
+    List<Object[]> findMistakeFrequency(@Param("name") String name);
+
 }

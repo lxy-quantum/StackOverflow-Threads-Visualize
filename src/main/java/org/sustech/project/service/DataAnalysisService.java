@@ -24,8 +24,15 @@ public class DataAnalysisService {
         this.answerRepository = answerRepository;
     }
 
-    public List<TopicFrequencyDTO> getTopNJavaTopics() {
-        List<Object[]> results = questionRepository.findTopNJavaTopics();
+    public List<TopicFrequencyDTO> getTopNJavaTopics(int limitValue) {
+        List<Object[]> results = questionRepository.findTopNJavaTopics(limitValue);
+        return results.stream()
+                .map(result -> new TopicFrequencyDTO((String) result[0], (Double) result[1]))
+                .collect(Collectors.toList());
+    }
+
+    public List<TopicFrequencyDTO> getTopicFrequency(String tag) {
+        List<Object[]> results = questionRepository.findTopicFrequency(tag);
         return results.stream()
                 .map(result -> new TopicFrequencyDTO((String) result[0], (Double) result[1]))
                 .collect(Collectors.toList());
@@ -38,8 +45,15 @@ public class DataAnalysisService {
                 .collect(Collectors.toList());
     }
 
-    public List<MistakeDTO> getCommonMistakes() {
-        List<Object[]> results = questionRepository.findCommonMistakes();
+    public List<MistakeDTO> getCommonMistakes(int limitValue) {
+        List<Object[]> results = questionRepository.findCommonMistakes(limitValue);
+        return results.stream()
+                .map(result -> new MistakeDTO((String) result[0], (Long) result[1]))
+                .collect(Collectors.toList());
+    }
+
+    public List<MistakeDTO> getMistakeFrequency(String name) {
+        List<Object[]> results = questionRepository.findMistakeFrequency(name);
         return results.stream()
                 .map(result -> new MistakeDTO((String) result[0], (Long) result[1]))
                 .collect(Collectors.toList());
