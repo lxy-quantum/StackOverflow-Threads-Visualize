@@ -13,7 +13,7 @@ LIMIT 15;
 -- top N topics with most engagement from high reputation users
 SELECT
     tag,
-    round(SUM(engagement_score)) AS total_engagement
+    cast(sum(engagement_score) AS BIGINT) AS total_engagement
 FROM (
          -- Combine all queries with UNION ALL
          (

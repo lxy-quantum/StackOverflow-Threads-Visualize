@@ -26,7 +26,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query(value = """
             SELECT
                 tag,
-                round(SUM(engagement_score)) AS total_engagement
+                cast(sum(engagement_score) AS BIGINT) AS total_engagement
             FROM (
                      -- Combine all queries with UNION ALL
                      (

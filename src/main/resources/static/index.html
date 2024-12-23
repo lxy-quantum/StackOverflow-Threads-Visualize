@@ -1,11 +1,17 @@
-<!-- src/main/resources/static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let topicChartInstance = null;
+        let engagementChartInstance = null;
+        let mistakeChartInstance = null;
+        let qualityChartInstance = null;
+
+        // Fetch Top Java Topics
         function fetchTopics() {
             fetch('http://localhost:8080/topics/top')
                 .then(response => {
@@ -15,20 +21,467 @@
                     return response.json();
                 })
                 .then(data => {
-                    let topicList = document.getElementById('topic-list');
-                    topicList.innerHTML = '';
-                    data.forEach(topic => {
-                        let listItem = document.createElement('li');
-                        listItem.textContent = `${topic.tag}, ${topic.frequency}%`;
-                        topicList.appendChild(listItem);
-                    });
+                    renderTopicChart(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching topics:', error);
                 });
         }
+
+        // Fetch Top Engaged Topics
+        function fetchEngagement() {
+            fetch('http://localhost:8080/topics/engagement')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderEngagementChart(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching engagement data:', error);
+                });
+        }
+
+        // Fetch Common Mistakes
+        function fetchMistakes() {
+            fetch('http://localhost:8080/mistakes')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderMistakeChart(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching mistakes data:', error);
+                });
+        }
+
+        // Fetch Answer Quality by Time
+        function fetchAnswerQualityByTime() {
+            fetch('http://localhost:8080/answers/quality/time')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderAnswerQualityChart(data, 'acceptRate', 'Average Upvotes (per interval)', 'Time-based Answer Quality');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Fetch Answer Quality by Reputation
+        function fetchAnswerQualityByReputation() {
+            fetch('http://localhost:8080/answers/quality/reputation')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderAnswerQualityChart(data, 'acceptRate', 'Average Upvotes (per reputation)', 'Reputation-based Answer Quality');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Fetch Answer Quality by Length
+        function fetchAnswerQualityByLength() {
+            fetch('http://localhost:8080/answers/quality/length')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderAnswerQualityChart(data, 'acceptRate', 'Average Upvotes (per length)', 'Length-based Answer Quality');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Render Topic Frequency Chart
+        function renderTopicChart(data) {
+            data.sort((a, b) => b.frequency - a.frequency);
+
+            const ctx = document.getElementById('topicChart').getContext('2d');
+
+            if (topicChartInstance) {
+                topicChartInstance.destroy();
+            }
+
+            topicChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(topic => topic.tag),
+                    datasets: [{
+                        label: 'Frequency (%)',
+                        data: data.map(topic => topic.frequency),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tags'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frequency (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render Engagement Chart
+        function renderEngagementChart(data) {
+            data.sort((a, b) => b.engagementScore - a.engagementScore);
+
+            const ctx = document.getElementById('engagementChart').getContext('2d');
+
+            if (engagementChartInstance) {
+                engagementChartInstance.destroy();
+            }
+
+            engagementChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(topic => topic.tag),
+                    datasets: [{
+                        label: 'Engagement Score',
+                        data: data.map(topic => topic.engagementScore),
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tags'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Engagement Score'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render Mistake Chart
+        function renderMistakeChart(data) {
+            console.log("Rendering Mistakes Data:", data); // 查看数据内容
+
+            // 检查数据有效性
+            if (data && data.length > 0) {
+                // 排序，频率得分从高到低
+                data.sort((a, b) => b.freqScore - a.freqScore);
+
+                const ctx = document.getElementById('mistakeChart').getContext('2d');
+
+                // 如果已有图表实例，则销毁它
+                if (mistakeChartInstance) {
+                    mistakeChartInstance.destroy();
+                }
+
+                // 创建新的图表
+                mistakeChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(mistake => mistake.name),  // 错误名称
+                        datasets: [{
+                            label: 'Frequency Score',  // 数据集标签
+                            data: data.map(mistake => Number(mistake.freqScore)),  // 确保频率得分是数字类型
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',  // 设置柱子的颜色
+                            borderColor: 'rgba(255, 99, 132, 1)',  // 设置柱子边框颜色
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Mistake Name'  // x 轴标题
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Frequency Score'  // y 轴标题
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.error("No valid data available to render the chart.");
+            }
+        }
+
+        // Render Answer Quality Chart with Dual Y-Axis
+        function renderAnswerQualityChart(data, chartTitle) {
+            if (qualityChartInstance) {
+                qualityChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('qualityChart').getContext('2d');
+            qualityChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.interval), // Time intervals, reputation ranges, or length ranges
+                    datasets: [
+                        {
+                            label: 'Acceptance Rate (%)',
+                            data: data.map(item => item.acceptRate * 100),  // Convert to percentage
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue color
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y1',  // Linked to the second Y axis for accept rate
+                        },
+                        {
+                            label: 'Average Upvotes',
+                            data: data.map(item => item.avgUpVotes),  // Average upvotes data
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Red color
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y2',  // Linked to the first Y axis for average upvotes
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const index = tooltipItem.dataIndex;
+                                    const count = data[index].count;
+                                    return `${tooltipItem.label}: ${tooltipItem.raw} | Count: ${count}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Interval/Range'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Acceptance Rate (%)'
+                            },
+                            position: 'left',
+                            min: 0,
+                            max: 100
+                        },
+                        y2: {
+                            type: 'linear',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Upvotes'
+                            },
+                            position: 'right',
+                            min: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show Frequency Chart
+        function showFrequencyChart() {
+            document.getElementById('topicChartContainer').style.display = 'block';
+            document.getElementById('engagementChartContainer').style.display = 'none';
+            document.getElementById('mistakeChartContainer').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'none';
+            fetchTopics();
+        }
+
+        // Show Engagement Chart
+        function showEngagementChart() {
+            document.getElementById('topicChartContainer').style.display = 'none';
+            document.getElementById('engagementChartContainer').style.display = 'block';
+            document.getElementById('mistakeChartContainer').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'none';
+            fetchEngagement();
+        }
+
+        // Show Mistake Chart
+        function showMistakeChart() {
+            document.getElementById('topicChartContainer').style.display = 'none';
+            document.getElementById('engagementChartContainer').style.display = 'none';
+            document.getElementById('mistakeChartContainer').style.display = 'block';
+            document.getElementById('mainPage').style.display = 'none';
+            fetchMistakes();
+        }
+
+        // Show Answer Quality by Time Chart
+        function showAnswerQualityByTime() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('qualityChartContainer').style.display = 'block';
+            fetchAnswerQualityByTime();
+        }
+
+        // Show Answer Quality by Reputation Chart
+        function showAnswerQualityByReputation() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('qualityChartContainer').style.display = 'block';
+            fetchAnswerQualityByReputation();
+        }
+
+        // Show Answer Quality by Length Chart
+        function showAnswerQualityByLength() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('qualityChartContainer').style.display = 'block';
+            fetchAnswerQualityByLength();
+        }
+
+        // Back to Main Page
+        function backToMain() {
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('topicChartContainer').style.display = 'none';
+            document.getElementById('engagementChartContainer').style.display = 'none';
+            document.getElementById('mistakeChartContainer').style.display = 'none';
+            document.getElementById('qualityChartContainer').style.display = 'none';
+        }
     </script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 80vh;
+            margin: 0 auto;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        #mainPage {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-<h1>Stack Overflow Data</h1>
-<button onclick="fetchTopics()">Get Top Java Topics</button>
-<ul id="topic-list"></ul>
+<div id="mainPage">
+    <h1>Stack Overflow Data</h1>
+    <button onclick="showFrequencyChart()">Get Top Java Topics by Frequency</button>
+    <button onclick="showEngagementChart()">Get Top Java Topics by Engagement</button>
+    <button onclick="showMistakeChart()">Get Common Mistakes</button>
+    <button onclick="showAnswerQualityByTime()">Get Answer Quality by Time</button>
+    <button onclick="showAnswerQualityByReputation()">Get Answer Quality by Reputation</button>
+    <button onclick="showAnswerQualityByLength()">Get Answer Quality by Length</button>
+</div>
+
+<!-- Frequency Chart -->
+<div id="topicChartContainer" class="chart-container" style="display: none;">
+    <button onclick="backToMain()">Back to Main</button>
+    <h2>Top Java Topics by Frequency</h2>
+    <canvas id="topicChart"></canvas>
+</div>
+
+<!-- Engagement Chart -->
+<div id="engagementChartContainer" class="chart-container" style="display: none;">
+    <button onclick="backToMain()">Back to Main</button>
+    <h2>Top Java Topics by Engagement</h2>
+    <canvas id="engagementChart"></canvas>
+</div>
+
+<!-- Mistake Chart -->
+<div id="mistakeChartContainer" class="chart-container" style="display: none;">
+    <button onclick="backToMain()">Back to Main</button>
+    <h2>Common Mistakes</h2>
+    <canvas id="mistakeChart"></canvas>
+</div>
+
+<!-- Answer Quality Chart -->
+<div id="qualityChartContainer" class="chart-container" style="display: none;">
+    <button onclick="backToMain()">Back to Main</button>
+    <h2>Answer Quality</h2>
+    <canvas id="qualityChart"></canvas>
+</div>
+
 </body>
 </html>
+
+
+

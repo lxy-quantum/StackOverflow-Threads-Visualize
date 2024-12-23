@@ -2,9 +2,9 @@ package org.sustech.project.dto;
 
 public class MistakeDTO {
     private String name;
-    private int FreqScore;
+    private long FreqScore;
 
-    public MistakeDTO(String name, int FreqScore) {
+    public MistakeDTO(String name, long FreqScore) {
         this.name = name;
         this.FreqScore = FreqScore;
     }
@@ -17,7 +17,7 @@ public class MistakeDTO {
         this.name = name;
     }
 
-    public int getFreqScore() {
+    public long getFreqScore() {
         return FreqScore;
     }
 

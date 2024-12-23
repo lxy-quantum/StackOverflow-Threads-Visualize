@@ -4,9 +4,9 @@ public class AnswerQualityDTO {
     private String interval;
     private double acceptRate;
     private double avgUpVotes;
-    private int count;
+    private long count;
 
-    public AnswerQualityDTO(String interval, double acceptRate, double avgUpVotes, int count) {
+    public AnswerQualityDTO(String interval, double acceptRate, double avgUpVotes, long count) {
         this.interval = interval;
         this.acceptRate = acceptRate;
         this.avgUpVotes = avgUpVotes;
@@ -37,11 +37,11 @@ public class AnswerQualityDTO {
         this.avgUpVotes = avgUpVotes;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 }
